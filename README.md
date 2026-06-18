@@ -68,10 +68,10 @@ A route is a string or an object:
 
 Use `paths` when the localized slugs differ. Set a locale to `null` to skip it, so an untranslated page never ships a wrong language card.
 
-Read routes from the filesystem instead of listing them:
+Read routes from the Next build manifest instead of listing them (run `next build` first):
 
 ```ts
-autoScan: { appDir: "app", stripSegments: ["locale"], ignore: ["api"] }
+autoScan: { stripSegments: ["locale"], ignore: ["/api"] }
 ```
 
 ## Wiring og:image

@@ -33,6 +33,7 @@ export default defineConfig({
     { slug: "deep-dive", paths: { de: "/wiki/deep-dive", en: "/en/wiki/deep-dive", nl: null } },
   ],
 
-  // Or read routes from the app folder instead of listing them:
-  // autoScan: { appDir: "app", stripSegments: ["locale"], ignore: ["api"] },
+  // Or read routes from the Next build manifest instead of listing them
+  // (needs `next build` first):
+  // autoScan: { stripSegments: ["locale"], ignore: ["/api"] },
 });

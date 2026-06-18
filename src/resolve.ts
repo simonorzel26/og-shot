@@ -29,12 +29,14 @@ function pickBaseUrl(config: OgShotConfig, options: RunOptions): string {
 }
 
 function stripTrailingSlash(url: string): string {
-  return url.replace(/\/+$/, "");
+  let result = url;
+  while (result.endsWith("/")) result = result.slice(0, -1);
+  return result;
 }
 
 function slugFromPath(path: string): string {
-  if (path === "/" || path === "") return "home";
-  return path.replace(/^\/+/, "").replace(/\/+$/, "").replace(/\//g, "-");
+  const parts = path.split("/").filter(Boolean);
+  return parts.length === 0 ? "home" : parts.join("-");
 }
 
 function normalizeRoute(input: string | RouteObject): RouteObject {
@@ -77,11 +79,8 @@ function extension(config: OgShotConfig): string {
 }
 
 function fileName(template: string, slug: string, locale: string | null): string {
-  return template
-    .replace(/\{slug\}/g, slug)
-    .replace(/\{locale\}/g, locale ?? "")
-    .replace(/-{2,}/g, "-")
-    .replace(/-$/, "");
+  const filled = template.split("{slug}").join(slug).split("{locale}").join(locale ?? "");
+  return filled.split("-").filter(Boolean).join("-");
 }
 
 /**

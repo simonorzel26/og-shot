@@ -10,12 +10,15 @@ export type Manifest = Record<string, Record<string, string>>;
  * leading `public/` stripped (the Next.js convention: public/og -> /og).
  */
 export function publicPathFor(config: OgShotConfig): string {
-  if (config.publicPath) return config.publicPath.replace(/\/+$/, "");
-  const afterPublic = config.outDir.match(/(?:^|\/)public\/(.+)$/);
-  const rel = afterPublic
-    ? afterPublic[1]
-    : config.outDir.replace(/^\.?\/+/, "");
-  return "/" + rel.replace(/^\/+|\/+$/g, "");
+  if (config.publicPath) {
+    let p = config.publicPath;
+    while (p.endsWith("/")) p = p.slice(0, -1);
+    return p;
+  }
+  const parts = config.outDir.split("/").filter((part) => part !== "" && part !== ".");
+  const publicIdx = parts.lastIndexOf("public");
+  const rel = publicIdx >= 0 ? parts.slice(publicIdx + 1) : parts;
+  return "/" + rel.join("/");
 }
 
 function manifestPath(config: OgShotConfig): string {

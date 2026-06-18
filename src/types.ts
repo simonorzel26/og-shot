@@ -61,13 +61,13 @@ export interface RouteObject {
 export type RouteInput = string | RouteObject;
 
 export interface NextScanOptions {
-  /** Path to the Next.js App Router directory, relative to cwd. Default "app". */
-  appDir?: string;
-  /** First-segment names to ignore (e.g. "api"). Default ["api"]. */
+  /** Next build output directory holding the route manifest. Default ".next". */
+  distDir?: string;
+  /** Route prefixes to ignore (e.g. "/api"). Default ["/api"]. */
   ignore?: string[];
   /**
    * Dynamic segment names to strip rather than skip, e.g. ["locale"] for an
-   * `app/[locale]/...` root. The `[name]` directory is removed from the path.
+   * `app/[locale]/...` root. `/[name]` is removed from the route.
    */
   stripSegments?: string[];
   /** Include `[param]` routes (skipped by default, nothing to render). */

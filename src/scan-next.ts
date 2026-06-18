@@ -1,60 +1,46 @@
-import { readdirSync, existsSync, statSync } from "node:fs";
+import { readFileSync, existsSync } from "node:fs";
 import { join } from "node:path";
 import type { NextScanOptions } from "./types.js";
 
-const PAGE_FILE = /^page\.(tsx|ts|jsx|js|mdx)$/;
-const ROUTE_GROUP = /^\(.+\)$/; // (marketing), does not affect the URL
-const PARALLEL_SLOT = /^@/; // @modal, does not affect the URL
-const DYNAMIC = /^\[.+\]$/; // [slug], [[...all]], [...all]
+const MANIFEST = "app-path-routes-manifest.json";
 
 /**
- * Walk a Next.js App Router directory and return the static route paths that
- * have a page file. Route groups `(group)` and parallel slots `@slot` are
- * stripped from the URL. Dynamic `[param]` segments are skipped by default
- * (there is nothing concrete to screenshot); list them explicitly in config
- * instead. `stripSegments` removes a named dynamic segment from the path
- * rather than skipping it (use for an `app/[locale]/...` root).
+ * Routes from a Next.js App Router build, read from the manifest Next writes
+ * during `next build`. This is the authoritative route map, so there is no
+ * filesystem globbing, source parsing, or regex involved. Requires a prior
+ * build. Route groups and parallel slots are already resolved away by Next.
+ * Dynamic `[param]` routes are skipped (nothing concrete to screenshot) unless
+ * `includeDynamic`. `stripSegments: ["locale"]` removes an `[locale]` wrapper.
  */
 export function scanNextAppRoutes(options: NextScanOptions = {}): string[] {
-  const appDir = options.appDir ?? "app";
-  const ignore = new Set(options.ignore ?? ["api"]);
-  const strip = new Set((options.stripSegments ?? []).map((s) => `[${s}]`));
-  const includeDynamic = options.includeDynamic ?? false;
-
-  if (!existsSync(appDir)) {
+  const distDir = options.distDir ?? ".next";
+  const manifestPath = join(distDir, MANIFEST);
+  if (!existsSync(manifestPath)) {
     throw new Error(
-      `og-shot: autoScan could not find the app directory "${appDir}". Set autoScan.appDir.`,
+      `og-shot: ${manifestPath} not found. Run \`next build\` first, or set autoScan.distDir.`,
     );
   }
 
-  const routes: string[] = [];
+  const manifest = JSON.parse(readFileSync(manifestPath, "utf8")) as Record<string, unknown>;
+  const ignore = options.ignore ?? ["/api"];
+  const strip = options.stripSegments ?? [];
+  const includeDynamic = options.includeDynamic ?? false;
 
-  const walk = (dir: string, segments: string[]): void => {
-    const entries = readdirSync(dir);
+  const routes = new Set<string>();
+  for (const value of Object.values(manifest)) {
+    if (typeof value !== "string") continue;
 
-    if (entries.some((e) => PAGE_FILE.test(e))) {
-      routes.push(segments.length === 0 ? "/" : "/" + segments.join("/"));
+    let route = value;
+    for (const segment of strip) route = route.split(`/[${segment}]`).join("");
+    if (route === "") route = "/";
+
+    if (route.includes("/_")) continue;
+    if (ignore.some((p) => route === p || route.startsWith(p.endsWith("/") ? p : `${p}/`))) {
+      continue;
     }
+    if (!includeDynamic && route.includes("[")) continue;
 
-    for (const entry of entries) {
-      const full = join(dir, entry);
-      if (!statSync(full).isDirectory()) continue;
-      if (entry.startsWith("_") || ignore.has(entry)) continue;
-
-      if (ROUTE_GROUP.test(entry) || PARALLEL_SLOT.test(entry)) {
-        walk(full, segments); // transparent to the URL
-        continue;
-      }
-      if (strip.has(entry)) {
-        walk(full, segments); // e.g. [locale], handled by locale fan-out
-        continue;
-      }
-      if (DYNAMIC.test(entry) && !includeDynamic) continue;
-
-      walk(full, [...segments, entry]);
-    }
-  };
-
-  walk(appDir, []);
-  return [...new Set(routes)].sort();
+    routes.add(route);
+  }
+  return [...routes].sort();
 }
