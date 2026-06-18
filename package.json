@@ -26,7 +26,7 @@
     "seo"
   ],
   "bin": {
-    "og-shot": "./dist/cli.js"
+    "og-shot": "dist/cli.js"
   },
   "main": "./dist/index.js",
   "module": "./dist/index.js",
