@@ -74,6 +74,32 @@ Read routes from the filesystem instead of listing them:
 autoScan: { appDir: "app", stripSegments: ["locale"], ignore: ["api"] }
 ```
 
+## Wiring og:image
+
+Generating the PNGs does not change your meta tags. Set `manifest` and og-shot writes a map of the cards it produced:
+
+```jsonc
+// og.config: "manifest": "lib/og-cards.json"
+{
+  "about": { "de": "/og/about-de.png", "en": "/og/about-en.png" },
+  "pricing": { "de": "/og/pricing-de.png" }   // a skipped locale is just absent
+}
+```
+
+Read it in your metadata. In Next.js:
+
+```ts
+import cards from "@/lib/og-cards.json";
+
+export async function generateMetadata({ params }) {
+  const { locale } = await params;
+  const image = cards["about"]?.[locale];
+  return { openGraph: { images: image ? [image] : undefined } };
+}
+```
+
+A locale that was skipped (set to `null`) is missing from the map, so `image` is undefined and you fall back to your default card.
+
 ## How it works
 
 It opens each route in headless Chromium at the capture size, waits for fonts, then downscales to the output size with sharp. Capturing wide and shrinking gives sharper text than rendering straight at 1200x630. Cookies are cleared between pages so a locale cookie cannot leak into the next URL.

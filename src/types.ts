@@ -111,6 +111,17 @@ export interface OgShotConfig {
   filename?: string;
   /** Capture-time waiting and settling options. */
   wait?: WaitOptions;
+  /**
+   * Write a JSON manifest of slug -> locale -> served image URL for the cards
+   * that were produced. `true` writes `<outDir>/og-manifest.json`; a string is
+   * a custom path. Read it in your metadata to set og:image per route.
+   */
+  manifest?: boolean | string;
+  /**
+   * URL prefix the images are served from, used in the manifest. Defaults to
+   * `outDir` with a leading `public/` stripped (public/og -> /og).
+   */
+  publicPath?: string;
 }
 
 /** One fully-resolved unit of work: a single image to capture and write. */

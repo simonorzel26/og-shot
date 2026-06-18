@@ -3,6 +3,7 @@ import { dirname } from "node:path";
 import { resolveTargets } from "./resolve.js";
 import { createCapturer } from "./capture.js";
 import { optimize } from "./optimize.js";
+import { writeManifest } from "./manifest.js";
 import type { OgShotConfig, RunOptions, RunSummary, TargetResult } from "./types.js";
 
 /**
@@ -45,6 +46,8 @@ export async function run(
   } finally {
     await capturer.close();
   }
+
+  await writeManifest(results, config);
 
   return {
     ok: results.filter((r) => r.status === "ok").length,

@@ -4,6 +4,7 @@ export { resolveTargets } from "./resolve.js";
 export { scanNextAppRoutes } from "./scan-next.js";
 export { createCapturer } from "./capture.js";
 export { optimize } from "./optimize.js";
+export { writeManifest, publicPathFor, type Manifest } from "./manifest.js";
 export type {
   Environment,
   Resolution,
