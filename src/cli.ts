@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-import { existsSync } from "node:fs";
+import { existsSync, readFileSync } from "node:fs";
 import { resolve } from "node:path";
 import { pathToFileURL } from "node:url";
 import { createJiti } from "jiti";
@@ -29,7 +29,7 @@ Options:
       --dry-run         Print the resolved matrix without capturing
   -h, --help            Show this help
 
-Config: export default defineConfig({ ... }) from og.config.ts.`;
+Config: an "og-shot" key in package.json, or og.config.ts (defineConfig).`;
 
 interface Flags {
   config?: string;
@@ -88,30 +88,44 @@ function splitList(value: string | undefined): string[] {
     .filter(Boolean);
 }
 
-function findConfigPath(explicit?: string): string {
-  if (explicit) {
-    const p = resolve(explicit);
-    if (!existsSync(p)) throw new Error(`Config not found: ${p}`);
-    return p;
+function assertConfig(config: unknown, source: string): OgShotConfig {
+  if (
+    !config ||
+    typeof config !== "object" ||
+    !("outDir" in config) ||
+    !("baseUrl" in config)
+  ) {
+    throw new Error(`${source} must set baseUrl and outDir.`);
   }
-  for (const name of CONFIG_NAMES) {
-    const p = resolve(name);
-    if (existsSync(p)) return p;
-  }
-  throw new Error(
-    `No config found. Create one of: ${CONFIG_NAMES.join(", ")} (or pass --config).`,
-  );
+  return config as OgShotConfig;
 }
 
-async function loadConfig(path: string): Promise<OgShotConfig> {
+async function loadConfigFile(path: string): Promise<OgShotConfig> {
   const mod = path.endsWith(".json")
     ? await import(pathToFileURL(path).href, { with: { type: "json" } })
     : await createJiti(import.meta.url).import(path);
-  const config = (mod as { default?: OgShotConfig }).default ?? (mod as OgShotConfig);
-  if (!config || typeof config !== "object" || !("outDir" in config)) {
-    throw new Error(`Config at ${path} must default-export an OgShotConfig.`);
+  const config = (mod as { default?: unknown }).default ?? mod;
+  return assertConfig(config, path);
+}
+
+async function resolveConfig(explicit?: string): Promise<OgShotConfig> {
+  if (explicit) {
+    const p = resolve(explicit);
+    if (!existsSync(p)) throw new Error(`Config not found: ${p}`);
+    return loadConfigFile(p);
   }
-  return config;
+  for (const name of CONFIG_NAMES) {
+    const p = resolve(name);
+    if (existsSync(p)) return loadConfigFile(p);
+  }
+  const pkgPath = resolve("package.json");
+  if (existsSync(pkgPath)) {
+    const pkg = JSON.parse(readFileSync(pkgPath, "utf8")) as Record<string, unknown>;
+    if (pkg["og-shot"]) return assertConfig(pkg["og-shot"], 'package.json "og-shot"');
+  }
+  throw new Error(
+    'No config found. Add an "og-shot" key to package.json, create og.config.ts, or pass --config.',
+  );
 }
 
 async function main(): Promise<void> {
@@ -121,7 +135,7 @@ async function main(): Promise<void> {
     return;
   }
 
-  const config = await loadConfig(findConfigPath(flags.config));
+  const config = await resolveConfig(flags.config);
   const options: RunOptions = {
     environment: flags.env,
     baseUrlOverride: flags.base,

@@ -5,30 +5,32 @@ CLI to auto generate OG images for your Next.js App Router app. It screenshots y
 ## Install
 
 ```bash
-npm i -D og-shot playwright
-npx playwright install chromium
+npm install -D og-shot playwright
+# pnpm add -D og-shot playwright
+# yarn add -D og-shot playwright
+# bun add -d og-shot playwright
+```
+
+Then grab the browser once:
+
+```bash
+npx playwright install chromium   # or: bunx playwright install chromium
 ```
 
 ## Use
 
-Add `og.config.ts`:
+Add an `og-shot` key to your `package.json`. No extra config file in the root:
 
-```ts
-import { defineConfig } from "og-shot";
-
-export default defineConfig({
-  baseUrl: {
-    production: "https://example.com",
-    development: "http://localhost:3000",
-  },
-  outDir: "public/og",
-  locales: ["de", "en"],
-  resolution: { width: 1200, height: 630, captureWidth: 1440, captureHeight: 756 },
-  routes: [
-    "/",
-    { slug: "about", paths: { de: "/about", en: "/en/about" } },
-  ],
-});
+```json
+{
+  "og-shot": {
+    "baseUrl": { "production": "https://example.com", "development": "http://localhost:3000" },
+    "outDir": "public/og",
+    "locales": ["de", "en"],
+    "resolution": { "width": 1200, "height": 630, "captureWidth": 1440, "captureHeight": 756 },
+    "routes": ["/", { "slug": "about", "paths": { "de": "/about", "en": "/en/about" } }]
+  }
+}
 ```
 
 Run it:
@@ -41,6 +43,18 @@ npx og-shot --dry-run          # print the plan, capture nothing
 ```
 
 You get one PNG per route and locale in `public/og`.
+
+Want autocomplete and a typed config (or a function for `localePrefix`)? Use `og.config.ts` instead of the package.json key:
+
+```ts
+import { defineConfig } from "og-shot";
+
+export default defineConfig({
+  baseUrl: { production: "https://example.com" },
+  outDir: "public/og",
+  routes: ["/"],
+});
+```
 
 ## Routes
 
