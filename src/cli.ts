@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-import { existsSync, readFileSync } from "node:fs";
+import { existsSync, readFileSync, writeFileSync } from "node:fs";
 import { resolve } from "node:path";
 import { pathToFileURL } from "node:url";
 import { createJiti } from "jiti";
@@ -19,6 +19,7 @@ const HELP = `og-shot: auto generate OG images for your Next.js App Router app
 
 Usage:
   og-shot [options]
+  og-shot init            Add an og-shot config and an "og" script to package.json
 
 Options:
   -c, --config <path>   Path to the config file (default: og.config.*)
@@ -128,7 +129,49 @@ async function resolveConfig(explicit?: string): Promise<OgShotConfig> {
   );
 }
 
+function initConfig(): void {
+  const pkgPath = resolve("package.json");
+  if (!existsSync(pkgPath)) {
+    throw new Error("No package.json in the current directory.");
+  }
+  const pkg = JSON.parse(readFileSync(pkgPath, "utf8")) as Record<string, unknown>;
+  const messages: string[] = [];
+
+  if (!pkg["og-shot"]) {
+    pkg["og-shot"] = {
+      baseUrl: {
+        production: "https://example.com",
+        development: "http://localhost:3000",
+      },
+      outDir: "public/og",
+      routes: ["/"],
+    };
+    messages.push('added an "og-shot" config block');
+  }
+
+  const scripts = (pkg.scripts ?? {}) as Record<string, string>;
+  if (!scripts.og) {
+    scripts.og = "og-shot";
+    pkg.scripts = scripts;
+    messages.push('added an "og" script');
+  }
+
+  if (messages.length === 0) {
+    process.stdout.write("og-shot: package.json already has og-shot config and an og script.\n");
+    return;
+  }
+  writeFileSync(pkgPath, JSON.stringify(pkg, null, 2) + "\n");
+  process.stdout.write(
+    `og-shot: ${messages.join(" and ")} in package.json.\n` +
+      "Edit the routes, then run: npm run og\n",
+  );
+}
+
 async function main(): Promise<void> {
+  if (process.argv[2] === "init") {
+    initConfig();
+    return;
+  }
   const flags = parseFlags(process.argv.slice(2));
   if (flags.help) {
     process.stdout.write(HELP + "\n");

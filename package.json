@@ -1,6 +1,6 @@
 {
   "name": "og-shot",
-  "version": "0.3.0",
+  "version": "0.4.0",
   "description": "CLI to auto generate OG images for your Next.js App Router app.",
   "type": "module",
   "license": "MIT",
@@ -52,14 +52,11 @@
   },
   "dependencies": {
     "jiti": "^2.4.2",
+    "playwright": "^1.49.0",
     "sharp": "^0.34.2"
-  },
-  "peerDependencies": {
-    "playwright": ">=1.40.0"
   },
   "devDependencies": {
     "@types/node": "^22.10.2",
-    "playwright": "^1.49.1",
     "tsup": "^8.3.5",
     "typescript": "^5.7.2"
   }

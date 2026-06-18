@@ -5,21 +5,23 @@ CLI to auto generate OG images for your Next.js App Router app. It screenshots y
 ## Install
 
 ```bash
-npm install -D og-shot playwright
-# pnpm add -D og-shot playwright
-# yarn add -D og-shot playwright
-# bun add -d og-shot playwright
+npm install -D og-shot
+# pnpm add -D og-shot
+# yarn add -D og-shot
+# bun add -d og-shot
 ```
 
-Then grab the browser once:
-
-```bash
-npx playwright install chromium   # or: bunx playwright install chromium
-```
+That's it. Chromium downloads automatically the first time you run it.
 
 ## Use
 
-Add an `og-shot` key to your `package.json`. No extra config file in the root:
+Scaffold the config and a script in one step:
+
+```bash
+npx og-shot init
+```
+
+That adds an `og-shot` key and an `"og": "og-shot"` script to your `package.json`, so there's no extra config file in the root:
 
 ```json
 {
@@ -33,16 +35,16 @@ Add an `og-shot` key to your `package.json`. No extra config file in the root:
 }
 ```
 
-Run it:
+Run it (`init` added the `og` script, so `npm run og` works):
 
 ```bash
-npx og-shot                    # production, every route and locale
-npx og-shot --env development  # screenshot localhost
-npx og-shot --only about       # one route
-npx og-shot --dry-run          # print the plan, capture nothing
+npm run og                       # production, every route and locale
+npm run og -- --env development  # screenshot localhost
+npm run og -- --only about       # one route
+npm run og -- --dry-run          # print the plan, capture nothing
 ```
 
-You get one PNG per route and locale in `public/og`.
+Or call the binary directly: `npx og-shot`, `npx og-shot --dry-run`, etc. You get one PNG per route and locale in `public/og`.
 
 Want autocomplete and a typed config (or a function for `localePrefix`)? Use `og.config.ts` instead of the package.json key:
 

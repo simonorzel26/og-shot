@@ -1,5 +1,45 @@
 import { chromium, type Browser, type BrowserContext } from "playwright";
+import { createRequire } from "node:module";
+import { execFileSync } from "node:child_process";
+import { readFileSync } from "node:fs";
+import { dirname, join } from "node:path";
 import type { Target, WaitOptions } from "./types.js";
+
+function isMissingBrowserError(error: unknown): boolean {
+  const message = error instanceof Error ? error.message : String(error);
+  return (
+    message.includes("Executable doesn't exist") ||
+    message.includes("playwright install")
+  );
+}
+
+/** Download Chromium once on first run, so install is a single npm command. */
+function installChromium(): void {
+  const require = createRequire(import.meta.url);
+  const pkgJsonPath = require.resolve("playwright/package.json");
+  const pkg = JSON.parse(readFileSync(pkgJsonPath, "utf8")) as {
+    bin?: string | Record<string, string>;
+  };
+  const binRel = typeof pkg.bin === "string" ? pkg.bin : pkg.bin?.playwright;
+  if (!binRel) {
+    throw new Error("og-shot: could not locate the Playwright CLI to install Chromium.");
+  }
+  const cliPath = join(dirname(pkgJsonPath), binRel);
+  process.stderr.write(
+    "og-shot: Chromium not found, downloading it once (this can take a minute)...\n",
+  );
+  execFileSync(process.execPath, [cliPath, "install", "chromium"], { stdio: "inherit" });
+}
+
+async function launchChromium(): Promise<Browser> {
+  try {
+    return await chromium.launch();
+  } catch (error) {
+    if (!isMissingBrowserError(error)) throw error;
+    installChromium();
+    return chromium.launch();
+  }
+}
 
 const DEFAULT_UA =
   "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 " +
@@ -31,7 +71,7 @@ export async function createCapturer(
   const timeout = wait.timeout ?? 30000;
   const settleMs = wait.settleMs ?? 500;
 
-  const browser: Browser = await chromium.launch();
+  const browser: Browser = await launchChromium();
   const context: BrowserContext = await browser.newContext({
     reducedMotion: "reduce",
     userAgent: DEFAULT_UA,
