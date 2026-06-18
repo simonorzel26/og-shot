@@ -1,0 +1,65 @@
+{
+  "name": "og-shot",
+  "version": "0.1.0",
+  "description": "Screenshot your Next.js (or any) routes into Open Graph images. Define routes, run the CLI, get optimized per-locale PNGs from your real pages.",
+  "type": "module",
+  "license": "MIT",
+  "author": "Simon Orzel",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/simonorzel26/og-shot.git"
+  },
+  "homepage": "https://github.com/simonorzel26/og-shot#readme",
+  "bugs": {
+    "url": "https://github.com/simonorzel26/og-shot/issues"
+  },
+  "keywords": [
+    "open-graph",
+    "og-image",
+    "screenshot",
+    "playwright",
+    "nextjs",
+    "app-router",
+    "social-card",
+    "twitter-card",
+    "cli",
+    "seo"
+  ],
+  "bin": {
+    "og-shot": "./dist/cli.js"
+  },
+  "main": "./dist/index.js",
+  "module": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    }
+  },
+  "files": [
+    "dist"
+  ],
+  "engines": {
+    "node": ">=18"
+  },
+  "scripts": {
+    "build": "tsup",
+    "dev": "tsup --watch",
+    "typecheck": "tsc --noEmit",
+    "prepublishOnly": "npm run build"
+  },
+  "dependencies": {
+    "jiti": "^2.4.2",
+    "sharp": "^0.34.2"
+  },
+  "peerDependencies": {
+    "playwright": ">=1.40.0"
+  },
+  "devDependencies": {
+    "@types/node": "^22.10.2",
+    "playwright": "^1.49.1",
+    "tsup": "^8.3.5",
+    "typescript": "^5.7.2"
+  }
+}
