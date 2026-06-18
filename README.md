@@ -4,24 +4,20 @@ CLI to auto generate OG images for your Next.js App Router app. It screenshots y
 
 ## Install
 
+One command installs og-shot and scaffolds the config + `og` script:
+
 ```bash
-npm install -D og-shot
-# pnpm add -D og-shot
-# yarn add -D og-shot
-# bun add -d og-shot
+bun add -d og-shot && bunx og-shot init
+# npm:  npm i -D og-shot && npx og-shot init
+# pnpm: pnpm add -D og-shot && pnpm og-shot init
+# yarn: yarn add -D og-shot && yarn og-shot init
 ```
 
-That's it. Chromium downloads automatically the first time you run it.
+`init` adds an `og-shot` key and an `"og": "og-shot"` script to your `package.json` (no extra config file in the root), and Chromium downloads automatically the first time you run it.
 
 ## Use
 
-Scaffold the config and a script in one step:
-
-```bash
-npx og-shot init
-```
-
-That adds an `og-shot` key and an `"og": "og-shot"` script to your `package.json`, so there's no extra config file in the root:
+Edit the `og-shot` block `init` wrote into your `package.json`:
 
 ```json
 {
