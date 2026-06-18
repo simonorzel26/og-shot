@@ -15,7 +15,7 @@ const CONFIG_NAMES = [
   "og.config.json",
 ];
 
-const HELP = `og-shot — screenshot your routes into Open Graph images
+const HELP = `og-shot: auto generate OG images for your Next.js App Router app
 
 Usage:
   og-shot [options]

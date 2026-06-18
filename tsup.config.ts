@@ -6,6 +6,7 @@ export default defineConfig({
   target: "node18",
   dts: true,
   clean: true,
+  minify: true,
   sourcemap: false,
   shims: false,
 });

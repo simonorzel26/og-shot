@@ -3,8 +3,8 @@ import { join } from "node:path";
 import type { NextScanOptions } from "./types.js";
 
 const PAGE_FILE = /^page\.(tsx|ts|jsx|js|mdx)$/;
-const ROUTE_GROUP = /^\(.+\)$/; // (marketing) — does not affect the URL
-const PARALLEL_SLOT = /^@/; // @modal — does not affect the URL
+const ROUTE_GROUP = /^\(.+\)$/; // (marketing), does not affect the URL
+const PARALLEL_SLOT = /^@/; // @modal, does not affect the URL
 const DYNAMIC = /^\[.+\]$/; // [slug], [[...all]], [...all]
 
 /**
@@ -46,7 +46,7 @@ export function scanNextAppRoutes(options: NextScanOptions = {}): string[] {
         continue;
       }
       if (strip.has(entry)) {
-        walk(full, segments); // e.g. [locale] — handled by locale fan-out
+        walk(full, segments); // e.g. [locale], handled by locale fan-out
         continue;
       }
       if (DYNAMIC.test(entry) && !includeDynamic) continue;

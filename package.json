@@ -1,7 +1,7 @@
 {
   "name": "og-shot",
   "version": "0.1.0",
-  "description": "Screenshot your Next.js (or any) routes into Open Graph images. Define routes, run the CLI, get optimized per-locale PNGs from your real pages.",
+  "description": "CLI to auto generate OG images for your Next.js App Router app.",
   "type": "module",
   "license": "MIT",
   "author": "Simon Orzel",
@@ -14,14 +14,14 @@
     "url": "https://github.com/simonorzel26/og-shot/issues"
   },
   "keywords": [
-    "open-graph",
-    "og-image",
+    "og",
+    "opengraph",
+    "og images",
     "screenshot",
     "playwright",
     "nextjs",
-    "app-router",
-    "social-card",
-    "twitter-card",
+    "app router",
+    "social card",
     "cli",
     "seo"
   ],

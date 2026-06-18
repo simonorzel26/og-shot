@@ -70,7 +70,7 @@ export interface NextScanOptions {
    * `app/[locale]/...` root. The `[name]` directory is removed from the path.
    */
   stripSegments?: string[];
-  /** Include `[param]` routes (skipped by default — nothing to render). */
+  /** Include `[param]` routes (skipped by default, nothing to render). */
   includeDynamic?: boolean;
 }
 
